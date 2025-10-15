@@ -217,9 +217,19 @@ devices:
   # supported platforms.
   - compatible:
       - riscv,cpu-intc
+      - riscv,clint0
     regions:
       - index: 0
         kernel: CLINT_PPTR
+  
+  - compatible:
+    - "riscv,clint0"
+    type: clint
+    interrupt_cells: 0
+    regions:
+      - index: 0
+        kernel: CLINT_PPTR
+
 
   # elfloader rules
   - compatible:
