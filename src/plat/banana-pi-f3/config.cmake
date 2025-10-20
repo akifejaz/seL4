@@ -1,22 +1,27 @@
 #
-# Copyright 2020, DornerWorks
-# Copyright 2020, Data61, CSIRO (ABN 41 687 119 230)
+# Copyright 2025, 
 #
 # SPDX-License-Identifier: GPL-2.0-only
 #
 
-declare_platform(banana-pi-f3 KernelPlatformBananaPiF3 PLAT_BANANAPIF3 KernelSel4ArchRiscV64)
+cmake_minimum_required(VERSION 3.16.0)
+
+declare_platform(banana-pi-f3 KernelPlatformBananaPiF3 PLAT_BANANAPIF3 KernelArchRiscV)
 
 if(KernelPlatformBananaPiF3)
     declare_seL4_arch(riscv64)
-    config_set(KernelRiscVPlatform RISCV_PLAT "banana-pi-f3")
+    config_set(KernelRiscVPlatform RISCV_PLAT ${KernelPlatform})
     config_set(KernelPlatformFirstHartID FIRST_HART_ID 0)
     config_set(KernelOpenSBIPlatform OPENSBI_PLATFORM "generic")
-    list(APPEND KernelDTSList "tools/dts/banana-pi-f3.dts")
-    list(APPEND KernelDTSList "src/plat/banana-pi-f3/overlay-banana-pi-f3.dts")
+    list(APPEND KernelDTSList "tools/dts/${KernelPlatform}.dts")
+    list(APPEND KernelDTSList "${CMAKE_CURRENT_LIST_DIR}/overlay-${KernelPlatform}.dts")
+    # The value for TIMER_FREQUENCY is from the "timebase-frequency" field on
+    # the "cpus" node in the Banana Pi F3 device tree.
+    # The value for MAX_IRQ comes from the DTS "interrupt-controller" node which says
+    # "riscv,ndev = <0x9f>".
     declare_default_headers(
-        TIMER_FREQUENCY 12800000
-        MAX_IRQ 256
+        TIMER_FREQUENCY 24000000
+        MAX_IRQ 159
         INTERRUPT_CONTROLLER drivers/irq/riscv_plic0.h
     )
 else()
