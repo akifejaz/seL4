@@ -15,9 +15,20 @@
             &{/soc/interrupt-controller@e0000000};
     };
 
-    /* 2 GiB of main memory */
-    memory@0 {
-        reg = <0x00000000 0x00000000 0x00000000 0x80000000>;
+
+    /*
+    * Main memory layout
+    *
+    *   - Bank 0: usable DRAM from 0x00080000 (skipping first 512 KiB)
+    *             up to 0x7f000000 (reserving final 16 MiB of the low 2 GiB).
+    *   - Bank 1: usable DRAM from 0x100000000 (4 GiB) for ~14 GiB above.
+    *
+    *   Note: the 2–4 GiB physical window is omitted from use here.
+    */
+    memory@80000 {
+        device_type = "memory";
+        reg = <0x00000000 0x00080000 0x00000000 0x7ef80000>,
+              <0x00000001 0x00000000 0x00000003 0x80000000>;
     };
 
     /*
@@ -31,17 +42,23 @@
         };
     };
 
-    /* Reserve 2 MiB for SBI/boot firmware at the start of RAM
-     * (0x00000000 - 0x00200000). This prevents seL4 from using the
-     * low memory region that early firmware may occupy.
+    /*
+     * Reserve memory regions that must not be used by seL4:
+     * - (512 KiB): M-mode / OpenSBI
+     * - (16 MiB): framebuffer / S-mode runtime
      */
     reserved-memory {
         #address-cells = <0x02>;
         #size-cells = <0x02>;
         ranges;
 
-        sbi@0 {
-            reg = <0x00000000 0x00000000 0x00000000 0x00200000>;
+        mmode_resv0@0 {
+            reg = <0x00000000 0x00000000 0x00000000 0x00080000>;
+            no-map;
+        };
+
+        framebuffer@7f000000 {
+            reg = <0x00000000 0x7f000000 0x00000000 0x01000000>;
             no-map;
         };
     };
