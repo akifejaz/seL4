@@ -6,9 +6,9 @@
 
 cmake_minimum_required(VERSION 3.16.0)
 
-declare_platform(banana-pi-f3 KernelPlatformBananaPiF3 PLAT_BANANAPIF3 KernelArchRiscV)
+declare_platform(bananapi-f3 KernelPlatformBananapiF3 PLAT_BANANAPIF3 KernelArchRiscV)
 
-if(KernelPlatformBananaPiF3)
+if(KernelPlatformBananapiF3)
     declare_seL4_arch(riscv64)
     config_set(KernelRiscVPlatform RISCV_PLAT ${KernelPlatform})
     config_set(KernelPlatformFirstHartID FIRST_HART_ID 0)
