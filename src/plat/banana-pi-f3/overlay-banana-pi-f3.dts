@@ -1,29 +1,47 @@
 /*
- * Copyright 2020, DornerWorks
- * Copyright 2021, HENSOLDT Cyber
+ * Copyright 2025, UNSW
  *
  * SPDX-License-Identifier: GPL-2.0-only
  */
 
 / {
-	chosen {
-		seL4,kernel-devices =
-            &{/soc/clint@e4000000},
-		    &{/soc/interrupt-controller@e0000000};
-	};
+    reserved-memory {
+        /delete-node/ linux,cma;
+    };
 
-    /* Reserve 2 MiB for SBI at the start of RAM (0x80000000 - 0x80200000). This
-     * is exactly one "megapage" in the MMU table. It leaves plenty of space for
-     * further SBI experimenting, given the known usage (as of June 2021) is:
-     * - BBL: 76 KiB (= 0x13000)
-     * - OpenSBI: 128 KiB (= 0x20000) with PMP protection
+    chosen {
+        seL4,kernel-devices =
+            &{/soc/clint@e4000000},
+            &{/soc/interrupt-controller@e0000000};
+    };
+
+    /* 2 GiB of main memory */
+    memory@0 {
+        reg = <0x00000000 0x00000000 0x00000000 0x80000000>;
+    };
+
+    /*
+     * According to the Spacemit K1 memory map the CLINT is mapped from
+     * 0xe4000000 to 0xe4010000 (64 KiB region used for timer and IPIs).
+     */
+    soc {
+        clint@e4000000 {
+            compatible = "riscv,clint0";
+            reg = <0x00000000 0xe4000000 0x00000000 0x00010000>;
+        };
+    };
+
+    /* Reserve 2 MiB for SBI/boot firmware at the start of RAM
+     * (0x00000000 - 0x00200000). This prevents seL4 from using the
+     * low memory region that early firmware may occupy.
      */
     reserved-memory {
-        #address-cells = <0x01>;
-        #size-cells = <0x01>;
+        #address-cells = <0x02>;
+        #size-cells = <0x02>;
         ranges;
-        sbi@80000000 {
-            reg = <0x80000000 0x200000>;
+
+        sbi@0 {
+            reg = <0x00000000 0x00000000 0x00000000 0x00200000>;
             no-map;
         };
     };
