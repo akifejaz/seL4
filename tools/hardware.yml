@@ -222,7 +222,6 @@ devices:
       - index: 0
         kernel: CLINT_PPTR
 
-
   # elfloader rules
   - compatible:
       - arm,psci-0.2
