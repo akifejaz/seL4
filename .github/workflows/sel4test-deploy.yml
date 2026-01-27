@@ -83,7 +83,7 @@ jobs:
     name: HW Run
     if: ${{ github.repository_owner == 'seL4' || contains(github.ref, 'bpi-f3') }}
     runs-on: ${{ contains(fromJson(needs.the_matrix.outputs.matrix).include[strategy.job-index].platform, 'BANANAPI_F3') && 'self-hosted' || 'ubuntu-latest' }}
-    needs: [sim, the_matrix]
+    needs: [the_matrix]
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.the_matrix.outputs.matrix) }}
